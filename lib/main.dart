@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Patient Application',
-      home : GoogleMapPage(),
+      home : LoginPage(),
     );
   }
 }

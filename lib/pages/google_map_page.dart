@@ -159,7 +159,7 @@ class MapSampleState extends State<GoogleMapPage> {
           else {
             _showToast("Error : Sorry there was an error when sending the alert!");
           }
-          print(status);
+          //print(status);
         } else {
           //print('API Failed due to error : $code');
           _showToast("Error : API Failed due to error : $code");

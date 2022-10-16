@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:patient_app/pages/google_map_page.dart';
 import 'package:patient_app/pages/login_page.dart';
 import 'package:patient_app/pages/register_page.dart';
 import 'package:patient_app/constants//api.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -57,9 +58,21 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         var code=response.statusCode;
         if (response.statusCode == 200) {
           var data = jsonDecode(response.body.toString());
-          print(data);
+          var  status=data['status'];
+          if(status == "success"){
+            _showToast("Success : Login Successful");
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) =>  GoogleMapPage()),
+            );
+          }
+          else {
+            _showToast("Invalid Username and or Password");
+          }
+          //print(data);
         } else {
-          print('Login Failed due to the following error code : $code');
+          //print('Login Failed due to the following error code : $code');
+          _showToast("Login Failed due to the following error code : $code");
         }
       }
       else if(login_type == "phone"){
@@ -174,5 +187,17 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             ),
           ],
         ));
+  }
+  void _showToast(String text)
+  {
+    Fluttertoast.showToast(
+        msg: text,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.blue,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
   }
 }
