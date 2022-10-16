@@ -1,5 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 class LocationService{
   final String key ="AIzaSyCqIAwArbvvwzfMQaco1_hxk0005Nzfjno";
   Future<String> getPlaceId(String input) async {
@@ -15,7 +17,19 @@ class LocationService{
     var response=await http.get(Uri.parse(url));
     var json= convert.jsonDecode(response.body);
     var results=json['result'] as Map<String,dynamic>;
-    print(results);
+    //print(results);
     return results;
+  }
+  void _generalShowToast(String text)
+  {
+    Fluttertoast.showToast(
+        msg: text,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
   }
 }

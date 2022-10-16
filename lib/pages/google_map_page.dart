@@ -7,7 +7,7 @@ import 'package:patient_app/constants//api.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:fluttertoast/fluttertoast.dart';
 
 
 class GoogleMapPage extends StatefulWidget {
@@ -71,9 +71,9 @@ class MapSampleState extends State<GoogleMapPage> {
               controller: _searchController,
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(hintText: 'Search by Place Name'),
-              onChanged: (value){
-                print(value);
-              },
+              // onChanged: (value){
+              //   print(value);
+              // },
             )),
             IconButton(onPressed: () async {
                var place=await LocationService().getPlace(_searchController.text);
@@ -102,8 +102,16 @@ class MapSampleState extends State<GoogleMapPage> {
        floatingActionButton: FloatingActionButton.extended(
 
          onPressed: () async {
-           var place=await LocationService().getPlace(_searchController.text);
-           _sendAlert(place);
+           if(_searchController.text.isNotEmpty){
+             var place=await LocationService().getPlace(_searchController.text);
+             _sendAlert(place);
+           }
+           else{
+             _showToast("Error : Please set your Location");
+           }
+
+
+
          },
          label: Text('Send Alert'),
          icon: Icon(Icons.warning),
@@ -144,14 +152,36 @@ class MapSampleState extends State<GoogleMapPage> {
         var code=response.statusCode;
         if (response.statusCode == 200) {
           var data = jsonDecode(response.body.toString());
-          print(data);
+          var  status=data['status'];
+          if(status == "success"){
+            _showToast("Success : Alert Sent Successfully");
+          }
+          else {
+            _showToast("Error : Sorry there was an error when sending the alert!");
+          }
+          print(status);
         } else {
-          print('API Failed due to error : $code');
+          //print('API Failed due to error : $code');
+          _showToast("Error : API Failed due to error : $code");
         }
 
 
     }catch(e){
-      print(e.toString());
+      //print(e.toString());
+      throw  Exception(e.toString());
     }
   }
+  void _showToast(String text)
+  {
+    Fluttertoast.showToast(
+        msg: text,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.blue,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
+  }
+
 }
