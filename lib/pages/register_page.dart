@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:patient_app/pages/login_page.dart';
+import 'package:patient_app/pages/google_map_page.dart';
+import 'package:patient_app/constants//api.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
+import 'package:fluttertoast/fluttertoast.dart';
 
 
 class RegisterPage extends StatelessWidget {
@@ -29,6 +35,10 @@ class MyStatefulWidget extends StatefulWidget {
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   TextEditingController nameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController ageController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +69,17 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 controller: nameController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: 'User Name',
+                  labelText: 'Name',
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(10),
+              child: TextField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Email',
                 ),
               ),
             ),
@@ -74,6 +94,36 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 ),
               ),
             ),
+            Container(
+              padding: const EdgeInsets.all(10),
+              child: TextField(
+                controller: phoneController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Phone',
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(10),
+              child: TextField(
+                controller: ageController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Age',
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(10),
+              child: TextField(
+                controller: addressController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Address',
+                ),
+              ),
+            ),
             TextButton(
               onPressed: () {
                 //forgot password screen
@@ -84,10 +134,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 height: 50,
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 child: ElevatedButton(
-                  child: const Text('Login'),
+                  child: const Text('Sign Up'),
                   onPressed: () {
-                    print(nameController.text);
-                    print(passwordController.text);
+                    register(nameController.text.toString(),passwordController.text.toString(),emailController.text.toString(),phoneController.text.toString(),int.parse(ageController.text.toString()) , addressController.text.toString());
                   },
                 )
             ),
@@ -112,5 +161,63 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             ),
           ],
         ));
+  }
+  void register(String name,String password,String email,String phone,int age , String address) async {
+
+    try {
+
+        final response = await http.post(
+          Uri.parse(register_api),
+          body: jsonEncode({
+            'email': email,
+            'password': password,
+            'phone' : phone,
+            'name': name,
+            'age': age,
+            'address': address
+          }),
+          // Send authorization headers to the backend.
+          headers: {
+
+            HttpHeaders.authorizationHeader: token,
+          },
+
+        );
+        var code=response.statusCode;
+        if (response.statusCode == 200) {
+          var data = jsonDecode(response.body.toString());
+          var  status=data['status'];
+          if(status == "success"){
+            _showToast("Success : Registration Successful");
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) =>  GoogleMapPage()),
+            );
+          }
+          else {
+            var message=data['message'];
+            _showToast(message);
+          }
+          //print(data);
+        } else {
+          //print('Login Failed due to the following error code : $code');
+          _showToast("Login Failed due to the following error code : $code");
+        }
+
+    }catch(e){
+      print(e.toString());
+    }
+  }
+  void _showToast(String text)
+  {
+    Fluttertoast.showToast(
+        msg: text,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.blue,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
   }
 }
